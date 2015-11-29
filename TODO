@@ -1,0 +1,11 @@
+générer une clef secrète en base 32 ou 64
+
+trouver comment rendre compatible avec le qr code google
+
+faire une classe totp, une class hotp avec des méthodes pour vérifier et calculer les codes
+
+faire un fichier chiffré de clefs
+
+générer nous même le qr code
+
+faire un front-end

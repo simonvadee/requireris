@@ -1,1 +1,10 @@
 # requireris
+
+installation :
+==============
+
+requirements :
+==============
+
+usage :
+=======
