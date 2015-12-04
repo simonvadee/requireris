@@ -1,6 +1,5 @@
 générer une clef secrète en base 32 ou 64
-
-trouver comment rendre compatible avec le qr code google
+OU la récupérer de google authentificator
 
 faire une classe totp, une class hotp avec des méthodes pour vérifier et calculer les codes
 
