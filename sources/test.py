@@ -1,11 +1,7 @@
-import reqTOTP
-import reqUtils
-import pyotp
+from reqUtils import OTPManager
 
-seed = reqUtils.OTPManager.genSeed()
+manger = OTPManager('../accounts/')
 
-testReal = pyotp.TOTP(seed)
-testMe = reqTOTP.reqTOTP(seed)
 
 # for i in range(896):
     # if not testMe.check(testReal.now(), i):

@@ -1,8 +1,7 @@
 import hmac
-from hashlib import sha1
 import struct
 import base64
-from reqUtils import OTPManager
+from hashlib import sha1
 
 class reqHOTP(object):
     """
@@ -10,8 +9,7 @@ class reqHOTP(object):
     
     def __init__(self, secret, digits=6, hashfunc=sha1):
         try:
-            self.secret = base64.b32decode(OTPManager.padSeed(secret), casefold=True)
-            print(self.secret)
+            self.secret = base64.b32decode(secret, casefold=True)
         except binascii.Error as e:
             print(e)
             # raise KeyError

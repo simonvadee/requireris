@@ -10,7 +10,6 @@ class reqTOTP(reqHOTP):
         self.sync = sync
         super(reqTOTP, self).__init__(secret)
 
-
     def get(self, time=None):
         if not time:
             time = _time.time()
