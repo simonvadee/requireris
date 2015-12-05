@@ -1,5 +1,6 @@
 import sys
 from base64 import b32encode
+import binascii
 import random
 import string
 from getpass import getpass
@@ -46,12 +47,15 @@ class OTPManager(object):
         if passphrase != confirm_passphrase:
             print("wrong confirmation passphrase")
             return
-        print("passphrase = ", list(passphrase))
         self.pgp.genKey(account, passphrase)
         secret = input("please enter a 16 bytes secret key (press enter for auto-generation)")
         if secret == '':
             secret = genSeed()
-        self.otp = reqTOTP(secret)
+        try:
+            self.otp = reqTOTP(secret)
+        except binascii.Error as e:
+            #delete key
+            return
         self.pgp.encryptFile(account, secret)
         return self.otp.get()
 
@@ -66,6 +70,7 @@ def genSeed(size=16, source=string.ascii_lowercase):
     return seed
 
 def padSeed(seed, padding=8):
-    if len(seed) % padding != 0:
-        seed = seed.ljust(8, '=')
+    seed = seed.replace(' ', '')
+    while len(seed) % padding != 0:
+        seed += '='
     return seed

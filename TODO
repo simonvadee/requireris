@@ -1,10 +1,19 @@
-générer une clef secrète en base 32 ou 64
-OU la récupérer de google authentificator
+générer une clef secrète en base 32 -------------------------------------------------------------- OK
 
-faire une classe totp, une class hotp avec des méthodes pour vérifier et calculer les codes
+OU la récupérer de google authentificator -------------------------------------------------------- OK
 
-faire un fichier chiffré de clefs
+faire une classe totp, une class hotp avec des méthodes pour vérifier et calculer les codes OK --- OK
 
-générer nous même le qr code
+faire un fichier chiffré de clefs ---------------------------------------------------------------- OK
 
-faire un front-end
+générer nous même le qr code --------------------------------------------------------------------- NOT OK
+
+faire un front-end ------------------------------------------------------------------------------- WORKIN
+
+ajouter l'option <delete account> ---------------------------------------------------------------- NOT OK
+
+ajouter l'option <list account> ------------------------------------------------------------------ NOT OK
+
+faire un setup.py -------------------------------------------------------------------------------- NOT OK
+
+gérer les espaces et le padding dans les clefs --------------------------------------------------- OK

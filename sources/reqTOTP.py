@@ -1,3 +1,4 @@
+import binascii
 from reqHOTP import reqHOTP
 from hashlib import sha1
 import time as _time
@@ -8,7 +9,10 @@ class reqTOTP(reqHOTP):
     
     def __init__(self, secret, sync=30):
         self.sync = sync
-        super(reqTOTP, self).__init__(secret)
+        try:
+            super(reqTOTP, self).__init__(secret)
+        except binascii.Error as e:
+            raise(e)
 
     def get(self, time=None):
         if not time:

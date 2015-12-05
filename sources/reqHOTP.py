@@ -1,7 +1,9 @@
 import hmac
 import struct
 import base64
+import binascii
 from hashlib import sha1
+import reqUtils
 
 class reqHOTP(object):
     """
@@ -9,10 +11,10 @@ class reqHOTP(object):
     
     def __init__(self, secret, digits=6, hashfunc=sha1):
         try:
-            self.secret = base64.b32decode(secret, casefold=True)
+            self.secret = base64.b32decode(reqUtils.padSeed(secret), casefold=True)
         except binascii.Error as e:
             print(e)
-            # raise KeyError
+            raise(e)
         self.digits = digits
         self.hashfunc = hashfunc
         
