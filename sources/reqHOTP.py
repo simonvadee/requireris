@@ -9,11 +9,9 @@ class reqHOTP(object):
     """
     
     def __init__(self, secret, digits=6, hashfunc=sha1):
-        """
-        """        
-
         try:
             self.secret = base64.b32decode(OTPManager.padSeed(secret), casefold=True)
+            print(self.secret)
         except binascii.Error as e:
             print(e)
             # raise KeyError
