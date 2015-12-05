@@ -19,7 +19,7 @@ class reqHOTP(object):
         self.hashfunc = hashfunc
         
     def get(self, count):
-        count = bytearray(struct.pack('>Q', count))
+        count = bytes(bytearray(struct.pack('>Q', count)))
         digest = hmac.new(self.secret, count, self.hashfunc).digest()
         offset = digest[-1] & 0xf
         byte = struct.unpack(">I", digest[offset:offset + 4])[0]
