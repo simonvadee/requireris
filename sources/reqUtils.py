@@ -1,36 +1,38 @@
-import sys
-from base64 import b32encode
 import binascii
 import random
 import string
+import sys
 from getpass import getpass
+
 from reqPGP import reqPGP
 from reqTOTP import reqTOTP
 
+
 class OTPManager(object):
     """
-    GENRATE SEED
+    GENERATE SEED
     STORE SEED IN ENCRYPTED FILES
     MANAGE UI ?
     """
-    
+
     def __init__(self):
-        self.pgp = reqPGP('../accounts/')
+        self.pgp = reqPGP()
         self.otp = None
         self.session = None
-    
+
     def openExistingSession(self):
         account = input("account's name : ")
         if account == self.session:
             print("already signed in !")
             return
+        data = str()
         for index in range(3):
             passphrase = getpass("account's passphrase : ")
             try:
                 data = self.pgp.decryptFile(account, passphrase)
                 if data != '':
                     break
-            except FileNotFoundError as e:
+            except FileNotFoundError:
                 print("this account does not exist")
                 return
         if data == '':
@@ -39,7 +41,7 @@ class OTPManager(object):
         self.session = account
         self.otp = reqTOTP(data)
         return self.otp.get()
-        
+
     def createNewSession(self):
         account = input("new account's name : ")
         passphrase = getpass("new account's passphrase : ")
@@ -53,8 +55,8 @@ class OTPManager(object):
             secret = genSeed()
         try:
             self.otp = reqTOTP(secret)
-        except binascii.Error as e:
-            #delete key
+        except binascii.Error:
+            # delete key
             return
         self.pgp.encryptFile(account, secret)
         return self.otp.get()
@@ -64,10 +66,12 @@ class OTPManager(object):
             print("no active session")
         else:
             return self.otp.get()
-            
+
+
 def genSeed(size=16, source=string.ascii_lowercase):
-    seed = ''.join(random.SystemRandom().choice(source) for char in range(size))
+    seed = ''.join(random.SystemRandom().choice(source) for _ in range(size))
     return seed
+
 
 def padSeed(seed, padding=8):
     seed = seed.replace(' ', '')
