@@ -16,6 +16,7 @@ class OTPManager(object):
     """
 
     def __init__(self):
+        # ask where accounts will be stored
         self.pgp = reqPGP()
         self.otp = None
         self.session = None

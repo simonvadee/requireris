@@ -1,17 +1,23 @@
-from os import environ
+from os import name as osName, environ
 
 from gnupg import GPG
 
 
 class reqPGP(object):
     def __init__(self, path=None):
-        try:
-            self.gpg = GPG(gnupghome=environ["HOME"] + "/.reqkeys")
-            path = './accounts/'
-        except KeyError:
-            self.gpg = GPG(gnupghome=environ["HOMEPATH"] + "\\.reqkeys", gpgbinary='gpg.exe')
-            path = '.\\accounts\\'
-        self.path = path
+        self.gpg = GPG(gpgbinary=('gpg.exe' if osName == 'nt' else 'gpg'))
+        if not path:
+            try:
+                self.path = environ["HOME"] + "/.reqAccounts_"
+            except KeyError:
+                self.path = environ["HOMEPATH"] + "\\.reqAccounts_"
+        else:
+            if path[-1] != '\\' and osName == 'nt':
+                path += '\\'
+            elif path[-1] != '/' and osName == 'posix':
+                path += '/'
+            self.path = path
+            
 
     def genKey(self, account, passphrase):
         input_data = self.gpg.gen_key_input(
