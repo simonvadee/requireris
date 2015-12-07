@@ -1,3 +1,5 @@
-# for i in range(896):
-# if not testMe.check(testReal.now(), i):
-print('---->', testReal.now(), '====', testMe.get())
+import reqUtils
+
+test = reqUtils.OTPManager()
+print("< list accounts >", test.listAccounts())
+test.updateKey('simon')

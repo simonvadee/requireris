@@ -2,6 +2,7 @@ import binascii
 import random
 import string
 import sys
+from os import listdir, remove
 from getpass import getpass
 
 from reqPGP import reqPGP
@@ -69,6 +70,52 @@ class OTPManager(object):
             return self.otp.get()
 
 
+    def listAccounts(self):
+        files = [name for name in listdir(self.pgp.path) if name.find('.req') != -1]
+        accounts = []
+        for filename in files:
+            accounts.append(filename[1:filename.find('.req')])
+        return accounts
+        
+    def deleteAccount(self, toDelete):
+        keys = self.pgp.gpg.list_keys()
+        for key in keys:
+            keyName = key['uids'][0][key['uids'][0].find('<') + 1:key['uids'][0].find('>')]
+            if keyName == toDelete:
+                self.pgp.deleteKey(key['fingerprint'])
+
+        try:
+            remove(self.pgp.path + '.' + toDelete + '.req')
+        except FileNotFoundError:
+            return 'failure'
+        return 'success'
+        
+            
+    def updateKey(self, account):
+        for index in range(3):
+            passphrase = getpass("account's passphrase : ")
+            print(passphrase)
+            try:
+                data = self.pgp.decryptFile(account, passphrase)
+                if data != '':
+                    break
+            except FileNotFoundError:
+                print("this account does not exist")
+                return
+        if data == '':
+            print("3 password errors, exiting now...")
+            sys.exit()
+        secret = input("please enter a 16 bytes secret key (press enter for auto-generation)")
+        if secret == '':
+            secret = genSeed()
+        try:
+            self.otp = reqTOTP(secret)
+        except binascii.Error:
+            return
+        self.pgp.encryptFile(account, secret)
+        return self.otp.get()
+        
+    
 def genSeed(size=16, source=string.ascii_lowercase):
     seed = ''.join(random.SystemRandom().choice(source) for _ in range(size))
     return seed
