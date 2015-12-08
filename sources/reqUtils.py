@@ -5,8 +5,8 @@ import sys
 from os import listdir, remove
 from getpass import getpass
 
+import reqTOTP
 from reqPGP import reqPGP
-from reqTOTP import reqTOTP
 
 
 class OTPManager(object):
@@ -41,7 +41,7 @@ class OTPManager(object):
             print("3 password errors, exiting now...")
             sys.exit()
         self.session = account
-        self.otp = reqTOTP(data)
+        self.otp = reqTOTP.reqTOTP(data)
         return self.otp.get()
 
     def createNewSession(self):

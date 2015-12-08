@@ -22,4 +22,4 @@ gpg.exe
 usage :
 =======
 
-./requireris
+./requireris.py
