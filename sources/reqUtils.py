@@ -7,7 +7,7 @@ from getpass import getpass
 
 import reqTOTP
 from reqPGP import reqPGP
-
+from reqGUI import reqGUI
 
 class OTPManager(object):
     """
@@ -21,46 +21,48 @@ class OTPManager(object):
         self.pgp = reqPGP()
         self.otp = None
         self.session = None
+        self.connectTry = 0
+        self.gui = reqGUI(self)
 
-    def openExistingSession(self):
-        account = input("account's name : ")
+    def openExistingSession(self, account, passphrase):
         if account == self.session:
             print("already signed in !")
-            return
+            return None
         data = str()
-        for index in range(3):
-            passphrase = getpass("account's passphrase : ")
-            try:
-                data = self.pgp.decryptFile(account, passphrase)
-                if data != '':
-                    break
-            except FileNotFoundError:
-                print("this account does not exist")
-                return
-        if data == '':
-            print("3 password errors, exiting now...")
-            sys.exit()
+        try:
+            data = self.pgp.decryptFile(account, passphrase)
+            if data == '':
+                if self.connectTry < 3:
+                    self.connectTry += 1
+                    return None
+                else:
+                    print("3 password errors, exiting now...")
+                    sys.exit()
+        except FileNotFoundError:
+            print("this account does not exist")
+            return None
+        self.connectTry = 0
         self.session = account
         self.otp = reqTOTP.reqTOTP(data)
         return self.otp.get()
 
-    def createNewSession(self):
-        account = input("new account's name : ")
-        passphrase = getpass("new account's passphrase : ")
-        confirm_passphrase = getpass("confirm new account's passphrase : ")
+    def createNewSession(self, account, passphrase, confirm_passphrase, secret):
+        if account == self.session:
+            print("already signed in !")
+            return None
         if passphrase != confirm_passphrase:
             print("wrong confirmation passphrase")
-            return
-        self.pgp.genKey(account, passphrase)
-        secret = input("please enter a 16 bytes secret key (press enter for auto-generation)")
+            return None
+        key = self.pgp.genKey(account, passphrase)
         if secret == '':
             secret = genSeed()
         try:
-            self.otp = reqTOTP(secret)
+            self.otp = reqTOTP.reqTOTP(secret)
         except binascii.Error:
-            # delete key
-            return
+            self.pgp.deleteKey(key.fingerprint)
+            return None
         self.pgp.encryptFile(account, secret)
+        self.session = account
         return self.otp.get()
 
     def get(self):
@@ -109,12 +111,15 @@ class OTPManager(object):
         if secret == '':
             secret = genSeed()
         try:
-            self.otp = reqTOTP(secret)
+            self.otp = reqTOTP.reqTOTP(secret)
         except binascii.Error:
             return
         self.pgp.encryptFile(account, secret)
         return self.otp.get()
-        
+
+    def disconnect(self):
+        self.otp = None
+        self.session = None
     
 def genSeed(size=16, source=string.ascii_lowercase):
     seed = ''.join(random.SystemRandom().choice(source) for _ in range(size))
