@@ -108,7 +108,6 @@ class OTPManager(object):
             print("this account does not exist")
             return None
         self.connectTry = 0
-        secret = input("please enter the new 16 bytes secret key (press enter for auto-generation)")
         if secret == '':
             secret = genSeed()
         try:
