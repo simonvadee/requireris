@@ -93,21 +93,22 @@ class OTPManager(object):
         return 'success'
         
             
-    def updateKey(self, account):
-        for index in range(3):
-            passphrase = getpass("account's passphrase : ")
-            print(passphrase)
-            try:
-                data = self.pgp.decryptFile(account, passphrase)
-                if data != '':
-                    break
-            except FileNotFoundError:
-                print("this account does not exist")
-                return
-        if data == '':
-            print("3 password errors, exiting now...")
-            sys.exit()
-        secret = input("please enter a 16 bytes secret key (press enter for auto-generation)")
+    def updateKey(self, account, passphrase, secret=''):
+        data = str()
+        try:
+            data = self.pgp.decryptFile(account, passphrase)
+            if data == '':
+                if self.connectTry < 3:
+                    self.connectTry += 1
+                    return None
+                else:
+                    print("3 password errors, exiting now...")
+                    sys.exit()
+        except FileNotFoundError:
+            print("this account does not exist")
+            return None
+        self.connectTry = 0
+        secret = input("please enter the new 16 bytes secret key (press enter for auto-generation)")
         if secret == '':
             secret = genSeed()
         try:
