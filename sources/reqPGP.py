@@ -5,7 +5,7 @@ from gnupg import GPG
 
 class reqPGP(object):
     def __init__(self, path=None):
-        self.gpg = GPG(gpgbinary=('gpg.exe' if osName == 'nt' else 'gpg'))
+        self.gpg = GPG(gpgbinary=('../gpg.exe' if osName == 'nt' else 'gpg'))
         if not path:
             try:
                 self.path = environ["HOME"] + '/'
