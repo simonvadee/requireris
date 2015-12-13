@@ -89,6 +89,7 @@ class OTPManager(object):
             remove(self.pgp.path + '.' + toDelete + '.req')
         except FileNotFoundError:
             return 'failure'
+        self.disconnect()
         return 'success'
         
             

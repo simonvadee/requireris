@@ -5,8 +5,6 @@ from tkinter import *
 from tkinter import messagebox
 
 class reqGUI(object):
-    """
-    """
 
     def __init__(self, manager):
         self.manager = manager
@@ -76,10 +74,12 @@ class reqGUI(object):
         createNewAccButton.pack()
 
         if self.manager.otp != None:
+            accountLabel = Label(frameBaseOTP, text = "connected to " + self.currAccount)
             refreshButton = Button(frameBaseOTP, text = "Refresh", command = self.refreshOTP)
             self.code = StringVar()
             self.code.set(self.manager.get())
             self.OTPlabel = Label(frameBaseOTP, textvariable = self.code)
+            accountLabel.pack()
             refreshButton.pack()
             self.OTPlabel.pack()
             
@@ -195,6 +195,7 @@ class reqGUI(object):
                     self.wrongpassword = 1
                 pass
             else:
+                self.currAccount = self.nameAccEntry.get()
                 self.initLogView()
 
     def openSession(self):
