@@ -17,7 +17,6 @@ class OTPManager(object):
     """
 
     def __init__(self):
-        # ask where accounts will be stored
         self.pgp = reqPGP()
         self.otp = None
         self.session = None
@@ -27,7 +26,7 @@ class OTPManager(object):
     def openExistingSession(self, account, passphrase):
         if account == self.session:
             print("already signed in !")
-            return None
+            return -1
         data = str()
         try:
             data = self.pgp.decryptFile(account, passphrase)

@@ -57,62 +57,43 @@ class reqGUI(object):
         
         submitButton = Button(frameSubmit, text = "Submit", command = self.createNewAcc)
         submitButton.pack()
-
-    def initChooseAccView(self):
-        for child in self.window.winfo_children():
-            child.destroy()
-
-        frameBack = Frame(self.window, borderwidth = 0, relief = GROOVE)
-        frameBack.pack(side = TOP, padx = 10)
-            
-        previousButton = Button(frameBack, text = "back", command = self.initLogView)
-        previousButton.pack(fill = X)
-
-        frameInfo = Frame(self.window,borderwidth = 0, relief = GROOVE)
-        frameInfo.pack(side = LEFT, padx = 0, expand = True)
-
-        accNameLabel = Label(frameInfo, text = "Name Account")
-        accNameLabel.pack()
-        accPassLabel = Label(frameInfo, text = "Password")
-        accPassLabel.pack()
-
-        frameFields = Frame(self.window, borderwidth = 0, relief = GROOVE)
-        frameFields.pack(side = RIGHT, padx = 10, pady = 30)
-
-        self.nameAccEntry = Entry(frameFields, relief = GROOVE)
-        self.nameAccEntry.pack()
-        self.passEntry = Entry(frameFields, relief = GROOVE, show = "*")
-        self.passEntry.pack()
-
-        frameSubmit = Frame(self.window, borderwidth = 0, relief = GROOVE)
-        frameSubmit.pack(side = BOTTOM)
-        
-        submitButton = Button(frameSubmit, text = "Submit", command = self.openSession)
-        submitButton.pack()
         
     def closePopup(self):
         self.popup.destroy()
 
+    def refreshOTP(self):
+        self.code.set(self.manager.get())
+        
     def initLogView(self):
         self.wrongpassword = 0
         for child in self.window.winfo_children():
             child.destroy()
         frameGenOTP = Frame(self.window, borderwidth = 0, relief = GROOVE)
         frameGenOTP.pack(side = RIGHT, padx = 20, pady = 50)
+        frameBaseOTP = Frame(self.window, borderwidth = 0, relief = GROOVE)
+        frameBaseOTP.pack(side = BOTTOM, padx = 0, pady = 0)
         createNewAccButton = Button(frameGenOTP, text = "Create new account", command = self.initCreateAccView)
         createNewAccButton.pack()
 
-        useExistingAccButton = Button(frameGenOTP, text = "Use existing account", command = self.initChooseAccView)
-
+        if self.manager.otp != None:
+            refreshButton = Button(frameBaseOTP, text = "Refresh", command = self.refreshOTP)
+            self.code = StringVar()
+            self.code.set(self.manager.get())
+            self.OTPlabel = Label(frameBaseOTP, textvariable = self.code)
+            refreshButton.pack()
+            self.OTPlabel.pack()
+            
         frameAccounts = Frame(self.window, borderwidth = 0, relief = GROOVE)
         frameAccounts.pack(side = LEFT, padx = 20, pady = 20)
 
         accountsField = Label(frameAccounts, text = "Account list :")
         accountsField.pack()
         
-        useExistingAccButton.pack()
         self.accountList = self.manager.listAccounts()
-        print(self.accountList)
+
+        for account in self.accountList:
+            b = Button(frameAccounts, text = account, command = lambda acc=account: modifyDelete(acc))
+            b.pack()
         
         def modifyDelete(accountName):
             def execModifyButton(account):
@@ -123,7 +104,7 @@ class reqGUI(object):
                 frameField.pack(side = LEFT, padx = 0, pady = 20)
                 passLabel = Label(frameField, text = "Password")
                 passLabel.pack()
-                seedLabel = Label(frameField, text = "Seed")
+                seedLabel = Label(frameField, text = "Seed (optionnal)")
                 seedLabel.pack()
                 framePassword = Frame(self.popup, borderwidth = 0, relief = GROOVE)
                 framePassword.pack(side = RIGHT, padx = 5, pady = 20)
@@ -133,7 +114,7 @@ class reqGUI(object):
                 self.seedEntry.pack()
                 frameSubmit = Frame(self.popup, borderwidth = 0, relief = GROOVE)
                 frameSubmit.pack(side = BOTTOM)
-                submitButton = Button(frameSubmit, text = "submit",  borderwidth = 1, relief = GROOVE, command = self.genOTPView)
+                submitButton = Button(frameSubmit, text = "Submit",  borderwidth = 1, relief = GROOVE, command = self.genOTPView)
                 submitButton.pack()
                 
                 
@@ -141,21 +122,43 @@ class reqGUI(object):
                 if messagebox.askyesno('Delete', 'Are you sure you want to delete this account ?'):
                     self.manager.deleteAccount(account)
                     self.popup.destroy()
+                    self.initLogView()
                 
-            print("account name = ")
-            print(accountName)
+            def execConnectButton(account):
+                    
+                for child in self.popup.winfo_children():
+                    child.destroy()
+                self.currAccount = accountName
+
+                frameField = Frame(self.popup, borderwidth = 0, relief = GROOVE)
+                frameField.pack(side = LEFT, padx = 0, pady = 20)
+                passLabel = Label(frameField, text = "Password")
+                passLabel.pack()
+                
+                frameInfo = Frame(self.popup, borderwidth = 0, relief = GROOVE)
+                frameInfo.pack(side = LEFT, padx = 0, expand = True)
+                
+                frameFields = Frame(self.popup, borderwidth = 0, relief = GROOVE)
+                frameFields.pack(side = RIGHT, padx = 10, pady = 30)
+                
+                self.passEntry = Entry(frameFields, relief = GROOVE, show = "*")
+                self.passEntry.pack()
+                
+                frameSubmit = Frame(self.popup, borderwidth = 0, relief = GROOVE)
+                frameSubmit.pack(side = BOTTOM)
+                submitButton = Button(frameSubmit, text = "Submit", command = self.openSession)
+                submitButton.pack()
+                
             self.popup = Tk()
             self.popup.geometry("400x300")
             self.popup.wm_title("Requireris")
-            B1 = Button(self.popup, text = "Modify", command = lambda account=accountName: execModifyButton(account))
+            B1 = Button(self.popup, text = "Update seed", command = lambda account=accountName: execModifyButton(account))
             B1.pack()
             B2 = Button(self.popup, text = "Delete", command = lambda account=accountName: execDeleteButton(account))
             B2.pack()
+            B3 = Button(self.popup, text = "Connect", command = lambda account=accountName: execConnectButton(account))
+            B3.pack()
             self.popup.mainloop()
-        for account in self.accountList:
-            b = Button(frameAccounts, text = account, command = lambda acc=account: modifyDelete(acc))
-            print(account)
-            b.pack()
 
     def genOTPView(self):
         if not self.manager.openExistingSession(self.currAccount,
@@ -174,18 +177,11 @@ class reqGUI(object):
             self.otp = self.manager.updateKey(self.currAccount, self.currPassword, self.currSeed)
             frameNewSeed = Frame(self.popup, borderwidth = 0, relief = GROOVE)
             frameNewSeed.pack(padx = 40, pady = 40)
-            self.newOTP = Entry(frameNewSeed, state = 'normal')
-            self.newOTP.insert(0, self.otp)
-            self.newOTP.pack()
-            updateButton = Button(self.popup, text = "Refresh", borderwidth = 1, relief = GROOVE, command = self.updateOTP)
-            updateButton.pack()
-            doneButton = Button(self.popup, text = "done", borderwidth = 1, relief = GROOVE, command = self.closePopup)
-            doneButton.pack()
+            self.popup.destroy()
+            self.initLogView()
 
     def updateOTP(self):
         self.otp = self.manager.updateKey(self.currAccount, self.currPassword, self.currSeed)
-        self.newOTP.delete(0, END)
-        self.newOTP.insert(0, self.otp)
         
     def createNewAcc(self):
         if self.nameAccEntry.get() != "" and self.passEntry.get() != "" and self.confirmPassEntry.get() != "":
@@ -193,26 +189,24 @@ class reqGUI(object):
                                                 self.passEntry.get(),
                                                 self.confirmPassEntry.get(),
                                                 self.seedEntry.get()):
-                # erreur : mettre le emssage d'erreur approprié
-                # je sais pas quel message d'erreur mettre ?
-                pass
-            else:
-                # on est connecté, revenir au menu et afficher le code avec un petit compte à rebourd et réactualiser ?
-                print("success !")
-                self.initLogView()
-
-    def openSession(self):
-        if self.nameAccEntry.get() != "" and self.passEntry.get() != "":
-            if not self.manager.openExistingSession(self.nameAccEntry.get(),
-                                                   self.passEntry.get()):
-                # wrong password, afficher erreur !!
                 if self.wrongpassword == 0:
-                    errorLabel = Label(self.window, text = "WRONG PASSWORD", fg = "red")
+                    errorLabel = Label(self.window, text = "WRONG PASSWORD OR ALREADY SIGNED IN", fg = "red")
                     errorLabel.pack();
                     self.wrongpassword = 1
                 pass
             else:
-                # on est connecté, revenir au menu et afficher le code avec un petit compte à rebourd et réactualiser ?
-                print("success !")
+                self.initLogView()
+
+    def openSession(self):
+        if self.currAccount != "" and self.passEntry.get() != "":
+            if not self.manager.openExistingSession(self.currAccount,
+                                                   self.passEntry.get()):
+                if self.wrongpassword == 0:
+                    errorLabel = Label(window, text = "WRONG PASSWORD OR ALREADY SIGNED IN", fg = "red")
+                    errorLabel.pack();
+                    self.wrongpassword = 1
+                pass
+            else:
                 self.wrongpassword = 0
+                self.popup.destroy()
                 self.initLogView()
